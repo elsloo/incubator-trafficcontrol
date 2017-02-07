@@ -326,6 +326,7 @@ static int getSpeed(char *interface, char *buffer, int bufferSize) {
 	char *inf;
 	char b[256];
 	int speed = 0;
+        int i;
 	const char *fnames[] = {"slave_", "lower_"};
 
 	if (!interface)
@@ -343,7 +344,7 @@ static int getSpeed(char *interface, char *buffer, int bufferSize) {
 
 	if (dp != NULL) {
 		while ((ep = readdir (dp))) {
-			for (int i = 0; i < sizeof(fnames)/sizeof(fnames[0]); i++) {
+			for (i = 0; i < sizeof(fnames)/sizeof(fnames[0]); i++) {
 				str = strstr(ep->d_name, fnames[i]);
 				if (str) {
 					inf = str + strlen(fnames[i]);
@@ -542,9 +543,15 @@ void TSPluginInit(int argc, const char *argv[]) {
 	info.support_email = "justin@fp-x.com";
 	astatsLoad = time(NULL);
 
-	if (TSPluginRegister(&info) != TS_SUCCESS) {
-        TSError("Plugin registration failed. \n");
-	}
+	#if (TS_VERSION_NUMBER < 3000000)
+	  if (TSPluginRegister(TS_SDK_VERSION_2_0, &info) != TS_SUCCESS) {
+	#elif (TS_VERSION_NUMBER < 6000000)
+	  if (TSPluginRegister(TS_SDK_VERSION_3_0, &info) != TS_SUCCESS) {
+	#else
+	  if (TSPluginRegister(&info) != TS_SUCCESS) {
+	#endif
+	    TSError("Plugin registration failed. \n");
+  }
 
 	config_holder = new_config_holder(argc > 1 ? argv[1] : NULL);
 
@@ -864,4 +871,3 @@ static int config_handler(TSCont cont, TSEvent event, void *edata) {
 	load_config_file(config_holder);
 	return 0;
 }
-
