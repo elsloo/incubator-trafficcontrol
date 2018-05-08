@@ -76,24 +76,21 @@ public class CertificateRegistry {
 		}
 
 		// find CertificateData which has been removed
-		for (final String hostname : previousData.keySet())
-		{
-			if (!master.containsKey(hostname.replaceFirst("\\*\\.", "")) && sslEndpoint != null)
-			{
-					sslEndpoint.removeSslHostConfig(hostname);
+		for (final String hostname : previousData.keySet()) {
+			if (!master.containsKey(hostname.replaceFirst("\\*\\.", "")) && sslEndpoint != null) {
+				sslEndpoint.removeSslHostConfig(hostname);
 			}
 		}
 
 		// store the result for the next import
 		previousData.clear();
-		for (final CertificateData certificateData : certificateDataList )
-		{
+		for (final CertificateData certificateData : certificateDataList) {
 			previousData.put(certificateData.getHostname(), certificateData);
 		}
 
 		handshakeDataMap = master;
 
-		if (sslEndpoint != null ) {
+		if (sslEndpoint != null) {
 			sslEndpoint.reloadSSLHosts(changes);
 		}
 
